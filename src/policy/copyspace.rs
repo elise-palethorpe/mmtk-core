@@ -149,9 +149,10 @@ impl<VM: VMBinding> CopySpace<VM> {
     }
 
     pub fn release(&self) {
-        //if matches!(VM::VMActivePlan::global().base().options.nursery_zeroing, NurseryZeroingOptions::Eager) {
-        memory::zero(self.common.start, self.pr.cursor() - self.common.start);
-        // }
+        match VM::VMActivePlan::global().base().options.nursery_zeroing {
+            NurseryZeroingOptions::Eager => memory::zero(self.common.start, self.pr.cursor() - self.common.start),
+            _ => (),
+        }
         unsafe {
             #[cfg(feature = "global_alloc_bit")]
             self.reset_alloc_bit();

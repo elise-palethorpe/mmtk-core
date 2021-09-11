@@ -304,8 +304,12 @@ pub trait Space<VM: VMBinding>: 'static + SFT + Sync + Downcast {
                     }
 
                     // TODO: Concurrent zeroing
-                    if self.common().zeroed && matches!(VM::VMActivePlan::global().base().options.nursery_zeroing, NurseryZeroingOptions::Lazy) {
-                        memory::zero(res.start, bytes);
+
+                    if self.common().zeroed {
+                        match VM::VMActivePlan::global().base().options.nursery_zeroing {
+                            NurseryZeroingOptions::Lazy => memory::zero(res.start, bytes),
+                            _ => (),
+                        };
                     }
 
                     debug!("Space.acquire(), returned = {}", res.start);

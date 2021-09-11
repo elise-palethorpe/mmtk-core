@@ -12,6 +12,9 @@ custom_derive! {
         Nontemporal,
         Concurrent,
         Adaptive,
+        Lazy,
+        Eager,
+        None,
     }
 }
 

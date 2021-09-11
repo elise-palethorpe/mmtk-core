@@ -22,6 +22,7 @@ use crate::util::heap::layout::Mmapper as IMmapper;
 use crate::util::heap::space_descriptor::SpaceDescriptor;
 use crate::util::heap::HeapMeta;
 use crate::util::memory;
+use crate::util::options::NurseryZeroingOptions;
 
 use crate::vm::VMBinding;
 use std::marker::PhantomData;
@@ -303,7 +304,7 @@ pub trait Space<VM: VMBinding>: 'static + SFT + Sync + Downcast {
                     }
 
                     // TODO: Concurrent zeroing
-                    if self.common().zeroed {
+                    if self.common().zeroed && matches!(VM::VMActivePlan::global().base().options.nursery_zeroing, NurseryZeroingOptions::Lazy) {
                         memory::zero(res.start, bytes);
                     }
 

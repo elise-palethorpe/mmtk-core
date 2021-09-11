@@ -16,6 +16,9 @@ use crate::util::{Address, ObjectReference};
 use crate::vm::*;
 use libc::{mprotect, PROT_EXEC, PROT_NONE, PROT_READ, PROT_WRITE};
 use std::sync::atomic::{AtomicBool, Ordering};
+use crate::util::memory;
+use crate::vm::ActivePlan;
+use crate::util::options::NurseryZeroingOptions;
 
 const META_DATA_PAGES_PER_REGION: usize = CARD_META_PAGES_PER_REGION;
 
@@ -146,6 +149,9 @@ impl<VM: VMBinding> CopySpace<VM> {
     }
 
     pub fn release(&self) {
+        //if matches!(VM::VMActivePlan::global().base().options.nursery_zeroing, NurseryZeroingOptions::Eager) {
+        memory::zero(self.common.start, self.pr.cursor() - self.common.start);
+        // }
         unsafe {
             #[cfg(feature = "global_alloc_bit")]
             self.reset_alloc_bit();
